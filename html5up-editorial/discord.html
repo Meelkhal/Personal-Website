@@ -1,0 +1,435 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>NLP-Based Discord Chat Bot</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo"><strong>Mujtaba Elkhalifa</strong></a>
+									<ul class="icons">
+										<li><a href="#" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+										<li><a href="#" class="icon brands fa-github"><span class="label">github</span></a></li>
+									</ul>
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h1>What is Discord?</h1>
+									</header>
+
+									<span class="image main"><img src="images/Discord Chat/Discord Chat.jpg" alt="" /></span>
+
+									<p>Discord is an instant messaging and VoIP social platform that allows users to communicate through voice calls,
+										video calls, text messaging and media. Communication either takes place in private or in a server. Servers are a collection
+									of chat rooms in which users can communicate and are based off of a certain niche. </p>
+
+									<p>Unfortunately given the nature of discord servers as they grow in size, they become harder and harder to moderate unacceptable behaviour. In 2017 white supremacists
+										used Discord to plan the <a href="https://discord.com/blog/how-trust-safety-addresses-violent-extremism-on-Discord">"Unite the Right"</a> rally in Charlottesville, Virginia.</p>
+
+									<hr class="major" />
+
+									<h2>How Can We Limit Hateful and Inappropriate Content?</h2>
+									
+									<p>One way to detect hate speech in text is to use what is known as Natural Language Processing (NLP) to determine the sentiment of 
+										the text to determine the sentiment of the text. On approach to sentiment analysis is to create a Neural Network (NN) model that is trained on a data set containing hate speech and will then
+										yield a binary classification of whether or not the data constitutes hate speech. 
+									whether the data contains hate speech or not hate speech.</p>
+
+									<hr class="major" />
+
+									<h2>Analyzing Hateful/Inappropriate Data</h2>
+									<p>Before building the bot we need to make sure we have access to some good data sets that can be used to train our bot. After googling online I found
+										an extremely useful website called <a href="https://hatespeechdata.com/">hatespeechdata.com</a> which has a collection of hate speech data not just in english,
+										but in other languages as well. Browsing through the website, I will be using the following  <a href="https://www.kaggle.com/datasets/mrmorj/hate-speech-and-offensive-language-dataset"> data set</a>.
+
+									<p>This dataset is comprised of tweets which are labelled as either offensive, hate speech or neither. Text in the dataset 
+										can be racist, sexist, homophobic or generally offensive.</p>
+
+									<h4>Format of kaggle.csv</h4>
+													<div class="table-wrapper">
+														<table>
+															<thead>
+																<tr>
+																	<th>count</th>
+																	<th>hate_speech</th>
+																	<th>offensive_language</th>
+																	<th>neither</th>
+																	<th>class</th>
+																	<th>tweet</th>
+																</tr>
+															</thead>
+															<tbody>
+																<tr>
+																	<td>Number of CrowdFlower(CF) users who coded each tweet</td>
+																	<td>Number of CF users who judged the tweet to be hate speech</td>
+																	<td>Number of CF users who judged the tweet to be offensive</td>
+																	<td>Number of CF users who judged the tweet to be neither offensive nor non-offensive</td>
+																	<td>Class label for majority of CF users. 0-hate speech, 1-offensive language 2-neither</td>
+																	<td>Text of the tweet</td>
+																</tr> 
+															</tbody>
+														</table>
+													</div>
+
+									<p>This dataset is one of the ones I will be using to train a sentiment analysis neural network. The key fields of interest within the 
+										dataset are the class field which indicates the level of offensiveness of the data and the tweet field which actually contains the text.
+									</p>
+
+									<h2>Building Our Own Sentiment Analysis</h2>
+
+									<p>A popular approach to sentiment analysis is to use machine learning, typically neural networks will be employed</p>
+
+									<h3>Processing the Data</h3>
+
+									<p> If you wish to see how I processed and trained the data check out this link <a href="https://github.com/Meelkhal/Offensive-Speech-Detector/blob/main/kagglehate.ipynb">here</a>
+									Below is a brief summary of each of the models and a code snippet of their results and implementation</p>
+
+									<h3>Models and Results</h3>
+
+									<h4>Model 1: 1D ConvNet </h4>
+
+									<p>In summary a 1D ConvNet on text works similarly to a computer vision model in which the convolution will attempt to relate text with each other in the form of features in the same way
+										image pixels are relate to identify physical characteristics in an image. Additionally compared to other models using a 1D ConvNet tends to converge quite quickly,
+										looking at the training time for the data set composed of ~25k samples a model was trained in 2 mins with ~83% accuracy. The implementation of the model isn't too difficult and only requires a few lines.</p>
+
+									<pre><code class="language-python">model1 = Sequential()
+model1.add(layers.Embedding(maxWords, 60, input_length=maxLen))
+model1.add(layers.Conv1D(30, 6, activation='relu',kernel_regularizer=regularizers.l1_l2(l1=2.5e-3, l2=2.5e-3),bias_regularizer=regularizers.l2(2.5e-3)))
+model1.add(layers.MaxPooling1D(7))
+model1.add(layers.Conv1D(30, 6, activation='relu',kernel_regularizer=regularizers.l1_l2(l1=2.5e-3, l2=2.5e-3),bias_regularizer=regularizers.l2(2.5e-3)))
+model1.add(layers.GlobalMaxPooling1D())
+model1.add(layers.Dense(1,activation='sigmoid'))
+model1.compile(optimizer='rmsprop',loss='binary_crossentropy',metrics=['acc'])
+checkpoint1 = ModelCheckpoint("best_model1.keras", monitor='val_accuracy', verbose=1,save_best_only=True, mode='auto',save_weights_only=False)
+history = model1.fit(X_train, y_train, epochs=20,validation_data=(X_test, y_test),callbacks=[checkpoint1])</code></pre>
+
+									<h4>Model 1: Results</h4>
+									<img src="images/Discord Chat/NormalizedModel1.png">
+									<p>Looking at the model it does a fairly alright job in classification, but could perform much better. It also has an issue with false positives and false negatives and is likely
+										to accidently classify offensive speech as non offensive and non offensive speech as offensive. We can see that 21% of offensive data is miss classified
+										as offensive data which is a big problem..
+									</p>
+								
+									<h4>Model 2: LSTM Model </h4>
+
+									<p>In Summary an LSTM Model is a neural network model that has an architecture that allows it to have "memory" in that it can relate long term dependences of data with each other as a result LSTMs
+										are well suited to text sentiment especially if we wish to determine sentiment of a long text element. Again the code implementation is not to difficult.</p>
+
+									<pre><code class="language-python">model2 = Sequential()
+model2.add(layers.Embedding(maxWords, 25))
+model2.add(layers.LSTM(20,dropout=0.5))
+model2.add(layers.Dense(1,activation='sigmoid'))
+
+model2.compile(optimizer='rmsprop',loss='binary_crossentropy', metrics=['accuracy'])
+#Implementing model checkpoins to save the best metric and do not lose it on training.
+checkpoint2 = ModelCheckpoint("best_model2.keras", monitor='val_accuracy', verbose=1,save_best_only=True, mode='auto',save_weights_only=False)
+history = model2.fit(X_train, y_train, epochs=20,validation_data=(X_test, y_test),callbacks=[checkpoint2])</code></pre>
+
+									<h4>Model 2: Results</h4>
+									<img src="images/Discord Chat/NormalizedModel2.png">
+									<p>Looking at the model it does a fairly alright job in classification and is more accurate compared to the 1D ConvNeural Network. 
+										It's quite accurate when classifying both offensive and non offensive material. When considering false case scenarios such as false positives and false negatives
+										it tends to over compensate with false positives suggesting the model is more cautious and tends to "over estimate" the offensiveness of the text. For the purpose of a 
+										chat having more FPs is better than FNs as you would rather be safe then sorry.
+										
+									</p>
+
+									<h4>Model 3: LSTM Model with Bidirectional Layers</h4>
+
+									<p>This model is similar to the previous one, but by introducing bidirectional layers the model can process text sequences in a forward and reverse direction as opposed to a forward direction. Here's the code</p>
+
+									<pre><code class="language-python">model3 = Sequential()
+model3.add(layers.Embedding(maxWords, 60, input_length=maxLen))
+model3.add(layers.Bidirectional(layers.LSTM(30,dropout=0.6)))
+model3.add(layers.Dense(1,activation='sigmoid'))
+model3.compile(optimizer='rmsprop',loss='binary_crossentropy', metrics=['accuracy'])
+checkpoint3 = ModelCheckpoint("best_model3.keras", monitor='val_accuracy', verbose=1,save_best_only=True, mode='auto',save_weights_only=False)
+history = model3.fit(X_train, y_train, epochs=20,validation_data=(X_test, y_test),callbacks=[checkpoint3])</code></pre>
+
+									<h4>Model 3: Results</h4>
+									<img src="images/Discord Chat/NormalizedModel3.png">
+									<p>We can see the performance of this model is extremely similar to the LSTM model without any additional bidirectional layers. This model
+										has the exact same result when considing false responses as the previous model in that it tends to over compensate. </p>
+
+									<hr class="major" />
+
+									<h2>Building a Discord Bot</h2>
+
+									<p>Now that we can sufficiently obtain sentiment of a text it's time to create the actual backend which is the code for the discord bot.
+										I will be using modified code from the following tutorial <a href="https://www.youtube.com/watch?v=UYJDKSah-Ww&t=2s">link</a></p>
+
+
+									<h3>main.py</h3>
+									<pre><code class="language-python">import os
+from dotenv import load_dotenv
+from discord import Intents, Client, Message
+from responses import getResponse
+
+# Bot setup
+intents = Intents.default()
+intents.messages = True 
+client = Client(intents=intents)
+
+# Message functionally where most of the work will be done
+async def sendMessage(message, username, userMessage):
+	"""
+	Inputs:
+	message(discord.Message) : A discord message sent from the user
+	username(str) : Username of the user that sent the message
+	userMessage(str) : Message content typed by the user
+
+	Outputs:
+	None
+
+	Purpose:
+	Function that allows the bot to send a message
+	"""
+	try:
+		response = getResponse(username,userMessage)
+		await message.channel.send(response) 
+	except Exception as e:
+		print(e)
+
+
+# Handling the startup for the bot
+@client.event
+async def on_ready():
+	print(f'{client.user} is now operating')
+
+
+# Handling the incoming messages
+@client.event
+async def on_message(message):
+	if message.author == client.user:
+		return
+
+	#username = str(message.author)
+	username = str(message.author.nick)
+	userMessage = message.content
+	channel = str(message.channel)
+
+	print(f'[{channel}] {username}: "{userMessage}"')
+	await sendMessage(message, username, userMessage)
+
+
+# Launching the bot
+def main():
+	load_dotenv()
+	TOKEN = os.getenv('DISCORD_TOKEN')
+	client.run(TOKEN)
+
+
+if __name__ == '__main__':
+	main()</code></pre>
+
+	<p>Most of the changes for the discord bot where done here in the response.py file. I essentially added some functions which detect if
+		the text is offensive using a trained neural network <a href="https://github.com/Meelkhal/Offensive-Speech-Detector/blob/main/kagglehate.ipynb">(model training found here)</a>. 
+		once we're able to detect hateful speech then it's quite easy to get the bot to respond.
+	</p>
+
+	<h3>response.py</h3>
+									<pre><code class="language-python">import ollama
+import keras
+from keras.models import load_model
+from tensorflow.keras.preprocessing.text import Tokenizer
+from keras.preprocessing.sequence import pad_sequences
+
+import numpy as np
+import pandas as pd
+
+data = pd.read_csv("formattedKaggle.csv",dtype = str)
+tokenizer = Tokenizer(num_words=5000)
+tokenizer.fit_on_texts(list(map(str,list(data["tweet"]))))
+
+def LLMWarning(username):
+	"""
+	Inputs:
+	username(str): Username of the user
+
+	Outputs:
+	reponse(str): Returns warning response as string
+
+	Purpose:
+	takes in a username and outputs a warning to said user about offensive language. Warning is generated using a prompt to
+	an LLM model (in this case llama3.1)
+	"""
+
+	messagePrompt = "Warn a user named "+username+"that using offensive language is wrong. Use a maximum of 150 characters"
+	response = ollama.generate(model='llama3.1', prompt=messagePrompt)
+	return response["response"]
+
+def processMessage(message,maxWords,maxLen):
+	"""
+	Inputs:
+	message(discord.Message) : Discord Message
+	maxWords(int) : Number of maximum words we're considering in the tokenization
+	maxLen(int) : Maximum length of sequence padding
+
+	Output:
+	processedText(np.array) : A numpy array which returns a vectorized representation of the text
+
+	Purpose:
+	Processes the text data into numpy arrays
+	"""
+
+	sequence = tokenizer.texts_to_sequences([message])
+	processedText = pad_sequences(sequence, maxlen=maxLen)
+	return processedText
+
+def isOffensive(username,message):
+	"""
+	Inputs:
+	username(str): Username of the discord user
+	message(str): message by the discord user
+
+	Outputs:
+	offensivenessStatus(bool): boolean of offensiveness
+
+	Purpose:
+	Obtains a string of text and returns True if the string is offensive and False if the string is not offensive
+	"""        
+
+	processedMessage = processMessage(message,5000,200)
+	#print(message)
+	analyzer = load_model("best_model3.keras")
+	score = int(np.round(analyzer.predict(processedMessage))[0])
+	#print(score)
+	offensivenessStatus = (score == 1)
+
+	return offensivenessStatus
+
+def getResponse(username,userMessage):
+	""""
+	Inputs:
+	Username(str): Username of the discord user
+	userMessage(str): Message of the discord user
+
+	Outputs:
+	response(str): String corresponding to some generated respoinse
+
+	Purpose:
+	Following function takes in a message, if the message is offensive return an LLM generated warning. If not return nothing
+	"""
+	message = userMessage
+	print(message)
+	status = isOffensive(username,message)
+	if status:
+		return LLMWarning(username)
+	else:
+		""</code></pre>
+
+		<p>As an added bonus I added ollama and used a llama 3.1 LLM model to make the warnings by the discord bot more personalized and less generic.</p>
+
+		
+
+		<h3>Final Results</h3>
+
+		<img src="images/Discord Chat/AgressiveChat.png" width=700 alt="">
+
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+				<div id="sidebar">
+					<div class="inner">
+
+						<!-- Search -->
+						
+						<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Homepage</a></li>
+									<li>
+										<span class="opener">Projects</span>
+										<ul>
+											<li><a href="scraper.html">Web Scraper</a></li>
+											<li><a href="filter.html">Thumbnail Filter</a></li>
+											<li><a href="discord.html">Discord Chat Filter</a></li>
+										</ul>
+									</li>
+									<li>
+										<span class="opener">Blogs</span>
+										<ul>
+											<li><a href="https://github.com/Meelkhal/">Leet Code Problem</a></li>
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Recent Posts</h2>
+								</header>
+								<div class="mini-posts">
+									<article>
+										<h3>Vehicle Web Scraper</h3>
+										<a href="scraper.html" class="image"><img src="images/carpages.png" alt="" /></a>
+										<p>A simple webscraper project that takes car listing data from canadian used car websites. Click on the image to learn more!</p>
+									</article>
+									<article>
+										<h3>Thumbnail Classifier</h3>
+										<a href="filter.html" class="image"><img src="images/filter.png" alt="" /></a>
+										<p>A simple project that classifies whether a car listing has an "acceptable thumbnail". Click on the image to learn more!</p>
+									</article>
+									<article>
+										<h3>NLP-Based Discord Chat Bot</h3>
+										<a href="discord.html" class="image"><img src="images/Discord Chat/AgressiveChat.png" alt="" /></a>
+										<p>A chatbot written in python which responds to the offensiveness of a users message in text channel. Click on the image to learn more!</p>
+									</article>
+								</div>
+							</section>
+
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in touch</h2>
+								</header>
+								<p>If you have any questions or are interested in reaching out for any opportunities</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:mujelk@gmail.com">mujelk@gmail.com</a></li><br />
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Mujtaba Elkhalifa 2025. All rights reserved. Design from: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
