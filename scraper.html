@@ -1,0 +1,365 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Vehicle Web Scraper</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+								<header id="header">
+									<a href="index.html" class="logo"><strong>Mujtaba Elkhalifa</strong></a>
+									<ul class="icons">
+										<li><a href="https://www.linkedin.com/in/mujtaba-elkhalifa-0b104723a/" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+										<li><a href="https://github.com/Meelkhal/" class="icon brands fa-github"><span class="label">Github</span></a></li>
+									</ul>
+								</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h1>Vehicle Web Scraper</h1>
+									</header>
+
+									<span class="image main"><img src="assets/images/Scraper/carpages.png" alt="" /></span>
+
+									<p>
+										With the rise of inflation caused by the aftermath of the COVID-19 pandemic, there has been a noticible change in the price of common day to day goods throughout the world.
+ 										One sector of interest affected by inflation was the car market, especially the used car market in particular. Suggested causes for the used car market inflation were as follows:
+										<ol>
+											<li>Pandemic Disruptions: Pandemic restrictions resulted in factory shutdowns and supply chain issues.</li>
+											<li>Inventory: Used car inventories at dealers have been tight.</li>
+											<li>Interest Rates: Central banks have raised interest rates to combat inflation which has made car loans more expensive.</li>
+										</ol>
+									</p>
+
+									<p>To better understand the effects of inflation, I decided to scrape used vehicle listing information from popular used car websites such as 
+										<a href="https://www.carpages.ca">carpages.ca</a>
+									</p>
+
+									<hr class="major" />
+
+									<h2>Analyzing the Data</h2>
+									
+									<p>
+										Using a webscraper I created, I collected data on approximately 5000 car listings on carpages.ca. In this section I will be mainly analyzing the data,
+										in the subsequent section for those interested, I will show how I created the webscraper.
+									</p>
+									
+									<iframe src="assets/plotly/provincesprop.html" height="800" width="800" frameBorder="0"></iframe>
+
+									<p>
+										As expected we can see that Ontario has most of the car listings, additionally despite Québec being the second most populous province in Canada,
+										it has no representation on carpages.ca. This does make sense as Québec typically has its own francophone equivalents such as <a href="https://www.autohebdo.net/">autohebdo.net</a>.
+									</p>
+									
+									<iframe src="assets/plotly/citiesprop.html" height="800" width="800" frameBorder="0"></iframe>
+									
+									<p>
+										Given that the majority of car listings are located in Ontario, it's no surprise that the majority of car listings
+										are not only located in Ontario, but are also located within the GTA (Greater Toronto Area). In fact we can see that
+										7/10 of the most common cities are in Ontario with 4/10 of them being within the GTA.  
+									</p>
+									
+									<iframe src="assets/plotly/provincesmedian.html" height="800" width="800" frameBorder="0"></iframe>
+									
+									<p>
+										The median prices of sedans in each of the provinces are reflective of their respective cost of living (CoL). Since BC has been known to have
+										higher CoL it has a higher median sale value of sedans, likewise AB which has known to have a lower CoL has a lower median value 
+										for vehicles.
+									</p>
+									
+									<iframe src="assets/plotly/citiesmedian.html" height="800" width="800" frameBorder="0"></iframe>
+									
+									<p> When looking at the median prices located in each of the cities we can see that within the GTA there is a major price discrepancy we can see that North York has a significantly
+										lower median price, as a result it may be worthwhile for GTA owners to buy in North York, and sell in Brampton. Although this sample is only based off of data collected from one session
+										it does suggest that consumers could potentially expect big savings by exploring neighboring vicinities, especially in the GTA where we see the price difference between North York and Brampton. 
+									</p>
+									
+									<iframe src="assets/plotly/top10carmakes.html" height="800" width="800" frameBorder="0"></iframe>
+							
+									<p> Finally looking at the proportion of car makes, we can see that most vehicles being sold are from asian manufacturers such as 
+										Honda, Hyundai, and Toyota. For those who are knowledge on car brands this isn't too suprising as vehicles from these <a href="https://www.consumerreports.org/cars/car-reliability-owner-satisfaction/how-asian-domestic-european-automakers-rank-for-car-reliability-a7067862655/">brands have been
+										known to be durable and as a result are attractive</a> when buying used vehicles.
+									</p>
+
+									<hr class="major"/>
+
+									<h2>Building the WebScraper</h2>
+									
+									<p>In this section I'll be showing how I will source the data as well as using python to create the scripts to scrape the data with. If you just want to have 
+										a look at the end result it can be found here in this <a href="https://github.com/Meelkhal/CarPagesScraper/blob/main/carpages.ipynb">github repository.</a>
+									</p>
+
+									<h3 class="major">Sources of Data</h3>
+							
+									<p> 
+									When webscraping we first need to consider where we will source our data from. Since I'm situated in Canada, I'm interested
+									in sourcing data from Canadian car websites. Using some basic googling the most common sites are:
+									<ul>
+										<li><a href="https://www.carpages.ca/">carpages.ca</a></li>
+										<li><a href="https://www.carpages.ca/">kijijiautos.ca</a></li>
+										<li><a href="https://www.carpages.ca/">autotrader.ca</a></li>
+									</ul>
+									</p>
+
+									<h3 class="major">Tools and Libraries</h2>
+
+									<p>
+										Personally, since I use python the main libraries we can use to obtain the data are:
+										<ul></ul>
+											<li><a href="https://pypi.org/project/requests/">Requests</a></li>
+											<li><a href="https://beautiful-soup-4.readthedocs.io/en/latest/">Beautiful Soup</a></li>
+											<li><a href="https://www.selenium.dev/documentation/">Selenium</a></li>
+										</ul> 
+									</p>
+
+									<hr class="major" />
+
+									<h2>Accessing the Website</h2>
+									<p>
+										When considering each site we have to see if it's possible to actually access the site. This can be done using the requests library
+										and ensuring the status code of the requests is 200. If you're webscraping and you get a code other than 200 you may need
+										to consider using an alternate scraping method such as say Selenium instead of Bs4.
+									</p>
+									<h3>Checking Requests Using Python Requests Library</h3>
+											<pre><code class="language-python">import requests
+website = "https://www.carpages.ca/used-cars/search/?category_id=5"
+response = requests.get(website)
+status = response.status_code
+print(status)</code></pre>
+
+
+<p>Lets look at a sample of car listings on carpages.ca. </p>
+							
+<span class="image fit"><img src="assets/images/Scraper/coverpage.png" alt="" /></span>
+
+<p> We can see that each listing contains the following useful information. </p>
+
+<ul>
+	<li>Title of listing.</li>
+	<li>Model of vehicle.</li>
+	<li>Mileage (in Km).</li>
+	<li>Price (in CAD).</li>
+	<li>Location (City, Province).</li>
+	<li>Colour.</li>
+	<li>Thumbnail.</li>
+	<li>Dealership name.</li>
+</ul>
+
+<p></p>
+
+<p>Lets apply inspect element and look at how each carpage listing is organized on carpages.ca. Looking more closely we can see that every listing is organized within a 'div' element with a class
+	named 't-flex.t-gap-6.t-items-start.t-p-6'.
+</p>
+
+<span class="image fit"><img src="assets/images/Scraper/carlisting.png" alt="" /></span>
+
+<p>If we wish to gain additional data we need to parse through each of the sub tags using Beautiful Soup.</p>
+
+<h3 class="major">Obtaining Html Data From Tags</h3>
+
+<p>Lets collect all the car listings as beautiful soup elements with the following command.</p>
+
+<pre><code class="language-python">from bs4 import BeautifulSoup 
+soup = BeautifulSoup(response.content,'html.parser')
+cars = soup.find_all('div', class_='t-flex t-gap-6 t-items-start t-p-6')
+print(len(cars))</code></pre>
+
+<p>As desired we have obtained 50 div elements, one for each listings. Now that we have all of
+the div elements for each of the listings we need to look through the html code and the data that's
+worth looking for.
+</p>
+
+<h3>Relevant Data in Each Listing</h3>
+
+						<ul>
+							<li>Titles - Title of the listing. </li>
+							<li>Year - Year of manufacturing for the model. </li>
+							<li>Model - Model of the vehicle.</li>
+							<li>Style - Style correpsonds to body type of the cat (ex. Sedan, SUV).</li>
+							<li>Condition - Used or New.</li>
+							<li>Price - Price in Canadian dollars.</li>
+							<li>Mileage - Mileage in Kilometres.</li>
+							<li>Dealer - Dealership which is selling the vehicle.</li>
+							<li>City - City in which car is located in.</li>
+							<li>Province - Canadian province in which the car is listed in.</li>
+							<li>Posting Link - Link for personal listing page.</li>
+							<li>Thumbnail Link - Link for thumbnail image.</li>
+						</ul>
+
+						<p> Now that we know what data we're interested in we can use some html and python knowledge to obtain each of these fields.</p>
+					
+
+						<h3>Getting Title, Condition, Year, Model, Make, City and Province</h3>
+						
+						<p>If we look closely at the title we can see it contains the cars, condition, year, model, make, city and provincial information.</p>
+						
+						<pre><code>car = cars[0].findAll("a")
+title = car[0].find("img").get("alt")
+titleInfo = title.split(" ")
+condition = titleInfo[0]
+year = titleInfo[1]
+make = titleInfo[2]
+province = titleInfo[-1]
+print(titleInfo)</code></pre>
+<p>This selection of code gives us the following output.</p>
+<pre><code>['Used','2011','Chevrolet','Malibu','2LT','PLATINUM,','SUNROOF,','LEATHER,','BLUETOOTH!','for','sale','in','Orleans,','ON']</code></pre>
+
+					<p>Getting the city involves a bit of work (using the above method may not work if the city has a space in its name like North York).</p>
+
+					<pre><code>city = cars[0].findAll("p", class_="hN")[0].text.split(", ").pop(0)</code></pre>
+					
+					<h3>Getting the Model, Price, and Dealership</h3>
+					<p>For the model we can try the following command.</p>
+					<pre><code>model = cars[0].findAll("a")[1].text</code></pre>
+					
+					<p>For the price we try the following.</p>
+
+					<pre><code>price = list(filter(lambda a: a != "",str(cars[0].find("span").text).split(" ")))[-1] 
+price = price[1:len(price)]
+price = price.replace(",","")</code></pre>
+				
+					<p>Finally for the dealership.</p>
+
+					<pre><code>dealer = cars[0].findAll("h5")[-1].text</code></pre>
+					
+
+					<h3>Getting the Mileage</h3>
+
+					<p>Obtaining the mileage will require some error handling, sometimes on listing sites, users can put CALL. </p>
+					
+
+					<pre><code>def getMileage(car):
+mileage = ""
+mileageInfo = car.findAll("div",class_="t-col-span-full mobile-lg:t-col-span-6 laptop:t-col-span-4")[0].find_all("span")
+	for m in mileageInfo:
+		mileage += m.text
+	try:
+		mileage = int(mileage.replace(",","")[0:-2])
+	except ValueError:
+		# Sometimes posters will put text in place of a mileage so we need to account for error handling using a try statement 
+		pass
+					
+	return mileage</code></pre>
+
+					<p>Last two pieces of information are colour and thumbnail link.</p>
+
+					<pre><code>colour = cars[0].find("span",class_="t-text-sm t-font-bold").text</code></pre>
+				
+					<pre><code>image_link = cars[0].find_all("a")[0].find("img").get("data-original")</code></pre>
+
+					<p>If you would like a link to see the final product, check out my code on github located <a href="https://github.com/Meelkhal/CarPagesScraper">here.</a></p>
+
+					<hr class="major" />
+
+
+					
+
+
+
+
+
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+				<div id="sidebar">
+					<div class="inner">
+
+						<!-- Search -->
+						
+						<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Homepage</a></li>
+									<li>
+										<span class="opener">Projects</span>
+										<ul>
+											<li><a href="scraper.html">Web Scraper</a></li>
+											<li><a href="filter.html">Thumbnail Filter</a></li>
+											<li><a href="discord.html">Discord Chat Filter</a></li>
+										</ul>
+									</li>
+									<li>
+										<span class="opener">Blogs</span>
+										<ul>
+											<li><a href="https://github.com/Meelkhal/">Leet Code Problem</a></li>
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Recent Posts</h2>
+								</header>
+								<div class="mini-posts">
+									<article>
+										<h3>Vehicle Web Scraper</h3>
+										<a href="scraper.html" class="image"><img src="assets/images/Scraper/carpages.png" alt="" /></a>
+										<p>A simple webscraper project that takes car listing data from canadian used car websites. Click on the image to learn more!</p>
+									</article>
+									<article>
+										<h3>Thumbnail Classifier</h3>
+										<a href="filter.html" class="image"><img src="assets/images/Thumbnail Filter/filter.png" alt="" /></a>
+										<p>A simple project that classifies whether a car listing has an "acceptable thumbnail". Click on the image to learn more!</p>
+									</article>
+									<article>
+										<h3>NLP-Based Discord Chat Bot</h3>
+										<a href="discord.html" class="image"><img src="assets/images/Discord Chat/AgressiveChat.png" alt="" /></a>
+										<p>A chatbot written in python which responds to the offensiveness of a users message in text channel. Click on the image to learn more!</p>
+									</article>
+								</div>
+							</section>
+
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Get in Touch</h2>
+								</header>
+								<p>If you have any questions or are interested in reaching out for any opportunities send me an email at the address below.</p>
+								<ul class="contact">
+									<li class="icon solid fa-envelope"><a href="mailto:mujelk@gmail.com">mujelk@gmail.com</a></li><br />
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Mujtaba Elkhalifa 2025. All rights reserved. Design from: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>

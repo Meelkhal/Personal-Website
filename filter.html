@@ -1,0 +1,287 @@
+<!DOCTYPE HTML>
+<!--
+	Editorial by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+		<title>Thumbnail Filter</title>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" href="assets/css/main.css" />
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Main -->
+					<div id="main">
+						<div class="inner">
+
+							<!-- Header -->
+							<header id="header">
+								<a href="index.html" class="logo"><strong>Mujtaba Elkhalifa</strong></a>
+								<ul class="icons">
+									<li><a href="https://www.linkedin.com/in/mujtaba-elkhalifa-0b104723a/" class="icon brands fa-linkedin"><span class="label">LinkedIn</span></a></li>
+									<li><a href="https://github.com/Meelkhal/" class="icon brands fa-github"><span class="label">Github</span></a></li>
+								</ul>
+							</header>
+
+							<!-- Content -->
+								<section>
+									<header class="main">
+										<h1>Thumbnail Filter</h1>
+									</header>
+
+									<hr class="major" />
+
+
+									<p>In a previous <a href="scraper.html">project</a>, I created a webscraper that scrapres car listing data from used car websites. However
+										since most car listing websites are fairly difficult to moderate users may often list a listing that could be considered "undesirable". So what do I mean by an 
+									undesirable car listing? Usually for me a listing is undresirable if it has a thumbnail that doesn't accurately portray the vehicle that we wish to buy. </p>
+									
+									<span class="image main"><img src="assets/images/Thumbnail Filter/badlisting.jpg" alt="" /></span>	
+
+									<p>Looking at the above image, I would consider this one that would be undesirable as it doesn't actually show the vehicle in question. This is undesirable as most
+										used car buyers want to have a look of the actual used car so they can make a detailed analysis. It always helps to have a thumbnail that accurately portrays the vehicle
+										as it can help us filter out damaged or undesirable vehicles when searching for a used car. I dislike the above use of the thumbnail as it requires more work for me as the buyer as 
+										I have to reach out to the dealer to figure out if the vehicle is good or bad.
+
+									</p>
+
+									<h3>Thumbnail Filter in Action</h3>
+
+									<p>Using work from my other project we can import the scraper directly, one thing we do need to create is a script that will take the thumbnail links
+									and save the images to a .jpg and .png file.
+								
+									</p>
+
+									<h3>Creating the Thumbnail Filter</h3>
+
+									<p>To create the thumbnail filter I will do so by using a neural network classifier to distinguish between thumbnail images
+										that are satisfactory or unsatisfactory. I will try my hand at creating my own neural network classifier and compare it
+										to some popular prebuilt models.
+									</p>
+
+									<h3>Building a CNN Classifier From Scratch</h3>
+									
+									<p>A simple way of understanding a CNN classifier is it's composed of two parts, a <b>convolutional base</b> and a 
+									<b>dense head</b>.</p>
+									<img src="assets/images/Thumbnail Filter/covnet.png" alt="" />
+									
+									<p>
+									The above diagram can help us understand how a CNN classifier would work. First an image is sent into the convolutional base 
+									that is broken down into multiple features that are relevant to our object in question. After the physical features are extracted
+									a <b>dense head</b> would then classify the object based on the obtained features. 
+									</p>
+
+									<p>The below image can help us understand how a convulational base works with respect to classification of the model of a car. 
+										the <b>convulational base</b> would be able to obtain the physical features such as the window, chassis, bumper and wheel
+										of the car. The dense head would then obtain these segments of the vehicle and recognize that the following features likely
+										correspond to a "VW BUG" and would thus select that as a viable choice.
+									</p>
+									<img src="assets/images/Thumbnail Filter/convbase.png" alt="" />
+
+									<h4> Building the Convolutional Base</h4>
+									
+									As we stated above the purpose of the convolutional base is to extract features for us, feature extraction typically is done in the following way:
+									<ul>
+										<li>Filter: We wish to filter a particular feature of interest.</li>
+										<li>Detect: We want to be able to detect the feature of interest.</li>
+										<li>Condense: We want to condense unnesccarry information to optimally process a feature.</li>
+									</ul>
+
+									<h4>Filtering & Detection:</h4>
+
+									<p> The weights that a Conv net learns during traning are typically contained within its convolutional layer. The weights
+										are typically referred to as <b>kernels</b> and can be represented as an array of values:</p>
+
+									<img src="assets/images/Thumbnail Filter/kernel.png" alt=""/>
+									
+									<p>This image would represent a 3x3 kernel with each pixel corresponding to a different weight value. The kernel would then be used
+										to sweep through the image to obtain an <b>activation map</b> which helps us filter out the desired features in our image.
+									</p>
+
+									<img src="assets/images/Thumbnail Filter/Activation.png" alt="">
+
+									<p>This image illustrates the process very well. The 3x3 kernel sweeps through a fraction of the 5x5 input image and assigns it a new value
+										corresponding to the "purple" pixel on the output image. If the kernel is effective the output image's pixels will highlight the desired
+										desired features we wish to see.
+									</p>
+
+									<h4>Filtering & Detection Example</h4>
+
+									<p>Here's an image of a BMW, lets see what it would look like if we applied a filter to it.</p>
+
+									<img src="assets/images/Thumbnail Filter/prefilterbmw.png" alt="">
+
+									<p>One filter I want to try is known as "Edge-Dectect" a 3x3 example looks like this:</p>
+
+									<img src="assets/images/Thumbnail Filter/edgedetect.png" alt="">
+
+									<p>It can be implemented with the following code.</p>
+									
+									
+									<pre><code class="language-python">import tensorflow as tf
+kernel = tf.constant([
+	[-1, -1, -1],
+	[-1,  8, -1],
+	[-1, -1, -1],
+])
+
+plt.figure(figsize=(3, 3))
+show_kernel(kernel)</code></pre>
+								
+<p>Applying it to our image it follows its name and we can see that it filters out the image of the BMW.</p>
+									<img src="assets/images/Thumbnail Filter/postfilterbmw.png" alt="">
+
+									<h4> Condensing and Pooling</h4>
+
+									<p>In the previous step we applied some filtering and detection, the next step is to apply what is known as 
+										<b>condensing</b> and <b>pooling</b>. This step is important from a computational perspective as often times
+										when a feature is filtered we often carry some "dead space" which is useless and redundant data. Let's look at
+										an example:
+									</p> 
+
+									<img src="assets/images/Thumbnail Filter/condensingpool.png" alt="">
+
+									<p>In this image we essentially pool up the values in a 2x2 block and map it into a smaller image. Although we lose
+										some information computationally it helps as we lose a lot of the black space.
+									</p>
+
+									<hr class="major" />
+
+									<h3> Building the ConvNet to Filter Out "Tarp Style" Images</h3>
+
+									<p>Now that we have covered the background needed to create a convNet, let's build one. I will consider a fairly simple case in which I wish to filter out
+										images that have tarps within them like the following:</p>
+
+										<img src="assets/images/Thumbnail Filter/tarp.jpg" alt="">
+
+									<p>The code for creating the convNet is fairly simple.</p>
+
+									<pre><code class="language-python">from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Dense, Flatten, Dropout
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing import image
+
+model = Sequential()
+# The First Convolutional Block
+model.add(Conv2D(128, (5,5), 1, activation='relu', input_shape=(256, 256, 3)))
+model.add(MaxPooling2D())
+# The Second Convolutional Block
+model.add(Conv2D(64, (3,3), 1, activation='relu', input_shape=(256, 256, 3)))
+model.add(MaxPooling2D())
+# The Third Convulational Block
+model.add(Conv2D(32, (3,3), 1, activation='relu', input_shape=(256, 256, 3)))
+model.add(MaxPooling2D())
+# Classifier Head
+model.add(Flatten())
+model.add(Dense(256, activation='relu'))
+model.add(Dense(1, activation='sigmoid'))
+model.compile(optimizer='adam',loss=tf.losses.BinaryCrossentropy(), metrics=['accuracy'])
+model.summary()</code></pre>
+
+								<p>Finally lets fit the model to the data and analyze the model accuracy and the loss.</p>
+
+								<img src="assets/images/Thumbnail Filter/modelaccuracy.png" alt="">
+								<img src="assets/images/Thumbnail Filter/modelloss.png" alt="">
+								<p>Let us look at a more visual example of the filter in action.</p>
+								<img src="assets/images/Thumbnail Filter/results.png" 
+									width = "1000"
+									height= "2400">
+
+
+									<hr class="major" />
+
+								</section>
+
+						</div>
+					</div>
+
+				<!-- Sidebar -->
+				<div id="sidebar">
+					<div class="inner">
+
+						<!-- Search -->
+						
+						<!-- Menu -->
+							<nav id="menu">
+								<header class="major">
+									<h2>Menu</h2>
+								</header>
+								<ul>
+									<li><a href="index.html">Homepage</a></li>
+									<li>
+										<span class="opener">Projects</span>
+										<ul>
+											<li><a href="scraper.html">Web Scraper</a></li>
+											<li><a href="filter.html">Thumbnail Filter</a></li>
+											<li><a href="discord.html">Discord Chat Filter</a></li>
+										</ul>
+									</li>
+									<li>
+										<span class="opener">Blogs</span>
+										<ul>
+											<li><a href="https://github.com/Meelkhal/">Leet Code Problem</a></li>
+										</ul>
+									</li>
+								</ul>
+							</nav>
+
+						<!-- Section -->
+							<section>
+								<header class="major">
+									<h2>Recent Posts</h2>
+								</header>
+								<div class="mini-posts">
+									<article>
+										<h3>Vehicle Web Scraper</h3>
+										<a href="scraper.html" class="image"><img src="assets/images/Scraper/carpages.png" alt="" /></a>
+										<p>A simple webscraper project that takes car listing data from canadian used car websites. Click on the image to learn more!</p>
+									</article>
+									<article>
+										<h3>Thumbnail Classifier</h3>
+										<a href="filter.html" class="image"><img src="assets/images/Thumbnail Filter/filter.png" alt="" /></a>
+										<p>A simple project that classifies whether a car listing has an "acceptable thumbnail". Click on the image to learn more!</p>
+									</article>
+									<article>
+										<h3>NLP-Based Discord Chat Bot</h3>
+										<a href="discord.html" class="image"><img src="assets/images/Discord Chat/AgressiveChat.png" alt="" /></a>
+										<p>A chatbot written in python which responds to the offensiveness of a users message in text channel. Click on the image to learn more!</p>
+									</article>
+								</div>
+							</section>
+
+						<!-- Section -->
+						<section>
+							<header class="major">
+								<h2>Get in Touch</h2>
+							</header>
+							<p>If you have any questions or are interested in reaching out for any opportunities send me an email at the address below.</p>
+							<ul class="contact">
+								<li class="icon solid fa-envelope"><a href="mailto:mujelk@gmail.com">mujelk@gmail.com</a></li><br />
+							</ul>
+						</section>
+
+						<!-- Footer -->
+							<footer id="footer">
+								<p class="copyright">&copy; Mujtaba Elkhalifa 2025. All rights reserved. Design from: <a href="https://html5up.net">HTML5 UP</a>.</p>
+							</footer>
+
+					</div>
+				</div>
+
+			</div>
+
+		<!-- Scripts -->
+			<script src="assets/js/jquery.min.js"></script>
+			<script src="assets/js/browser.min.js"></script>
+			<script src="assets/js/breakpoints.min.js"></script>
+			<script src="assets/js/util.js"></script>
+			<script src="assets/js/main.js"></script>
+
+	</body>
+</html>
